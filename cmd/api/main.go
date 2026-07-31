@@ -21,13 +21,12 @@ import (
 func main() {
 
 	//Logger
-	logger := logger.New()
-	slog.SetDefault(logger)
+	logger.Init()
 
    // Config
 	cfg, err := config.MustLoad()
 	if err != nil {
-		logger.Error("invalid config", "error", err)
+		slog.Error("invalid config", "error", err)
 		os.Exit(1)
 	}
 
@@ -92,7 +91,7 @@ func main() {
 	}()
 
 	// Print startup message
-	logger.Info("Server started on http://localhost:" + cfg.Port)
+	slog.Info("Server started on http://localhost:" + cfg.Port)
 
 	// Create a channel to receive OS signals
 	// Notify this channel when Ctrl+C or SIGTERM is received
@@ -102,7 +101,7 @@ func main() {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	<-stop
 
-	logger.Info("Shutting down server...")
+	slog.Info("Shutting down server...")
 
 	// Give existing requests up to 5 seconds to finish
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -111,9 +110,9 @@ func main() {
 	// Gracefully shutdown the server
 	// Stops accepting new requests and waits for active ones.
 	if err := server.Shutdown(ctx); err != nil {
-		logger.Error("shutdown error", "error", err)
+		slog.Error("shutdown error", "error", err)
 		os.Exit(1)
 	}
 
-	logger.Info("Server gracefully shutdown")
+	slog.Info("Server gracefully shutdown")
 }
