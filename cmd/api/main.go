@@ -19,16 +19,20 @@ import (
 )
 
 func main() {
-
-	//Logger
-	logger.Init()
-
-   // Config
+	// Config
 	cfg, err := config.MustLoad()
 	if err != nil {
 		slog.Error("invalid config", "error", err)
 		os.Exit(1)
 	}
+	//Logger
+	logger.Init()
+
+	slog.Debug("Debug")
+	slog.Info("Info")
+	slog.Warn("Warn")
+	slog.Error("Error")
+
 
 	repo := repository.NewMemoryRepository()
 	userService := service.NewUserService(repo)

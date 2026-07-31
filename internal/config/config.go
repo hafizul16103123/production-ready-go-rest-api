@@ -36,7 +36,7 @@ type Config struct {
 }
 
 const bootstrapFile = "dev.env"
-
+var config *Config
 func MustLoad() (*Config, error) {
 
 	cfg := &Config{}
@@ -79,7 +79,10 @@ func MustLoad() (*Config, error) {
 	if err := validator.Struct(cfg); err != nil {
 		return nil, err
 	}
-
+    config = cfg
 	return cfg, nil
 
+}
+func Get() *Config {
+    return config
 }
