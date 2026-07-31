@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/logger"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/repository"
 )
@@ -17,7 +18,7 @@ func NewUserService(repo repository.UserRepository) *UserService {
 }
 
 func (s *UserService) GetAll() ([]model.User, error) {
-
+	logger.Info("Fetching all users from the database")
 	return s.repo.GetAll()
 }
 

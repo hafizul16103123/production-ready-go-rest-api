@@ -34,7 +34,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-
+	"time"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/service"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/response"
@@ -57,6 +57,7 @@ func (h *UserHandler) GetUsers(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
+	time.Sleep(2 * time.Millisecond) // Simulate a delay for demonstration purposes
 
 	users, err := h.service.GetAll()
 	if err != nil {

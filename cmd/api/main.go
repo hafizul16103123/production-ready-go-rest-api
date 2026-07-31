@@ -2,25 +2,33 @@ package main
 
 import (
 	"context"
-	"github.com/hafizul16103123/production-ready-go-rest-api/internal/config"
-	"github.com/hafizul16103123/production-ready-go-rest-api/internal/handler"
-	"github.com/hafizul16103123/production-ready-go-rest-api/internal/repository"
-	"github.com/hafizul16103123/production-ready-go-rest-api/internal/service"
-	"github.com/hafizul16103123/production-ready-go-rest-api/internal/middleware"
-	"github.com/hafizul16103123/production-ready-go-rest-api/routes"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/config"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/handler"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/logger"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/middleware"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/repository"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/service"
+	"github.com/hafizul16103123/production-ready-go-rest-api/routes"
 )
 
 func main() {
 
+	//Logger
+	logger := logger.New()
+	slog.SetDefault(logger)
+
+   // Config
 	cfg, err := config.MustLoad()
 	if err != nil {
-		log.Fatalf("invalid config: %v", err)
+		logger.Error("invalid config", "error", err)
+		os.Exit(1)
 	}
 
 	repo := repository.NewMemoryRepository()
@@ -77,13 +85,14 @@ func main() {
 		if err := server.ListenAndServe(); err != nil {
 			// Ignore the expected error returned after Shutdown().
 			if err != http.ErrServerClosed {
-				log.Fatal(err)
+				slog.Error("Server error", "error", err)
+				os.Exit(1)
 			}
 		}
 	}()
 
 	// Print startup message
-	log.Println("Server started on http://localhost:" + cfg.Port)
+	logger.Info("Server started on http://localhost:" + cfg.Port)
 
 	// Create a channel to receive OS signals
 	// Notify this channel when Ctrl+C or SIGTERM is received
@@ -93,7 +102,7 @@ func main() {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	<-stop
 
-	log.Println("Shutting down server...")
+	logger.Info("Shutting down server...")
 
 	// Give existing requests up to 5 seconds to finish
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -102,8 +111,9 @@ func main() {
 	// Gracefully shutdown the server
 	// Stops accepting new requests and waits for active ones.
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatal(err)
+		logger.Error("shutdown error", "error", err)
+		os.Exit(1)
 	}
 
-	log.Println("Server gracefully shutdown")
+	logger.Info("Server gracefully shutdown")
 }
