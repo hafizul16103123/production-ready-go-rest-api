@@ -29,12 +29,34 @@ func main() {
 
 	mux := routes.SetupRoutes(userHandler)
 
+	/*
+
+	আপনার Chain() Function-এর Golden Rule:
+	Chain()-এ Middleware যেই Order-এ লিখবেন, Request সেই একই Order-এ Execute হবে।
+	কারণ Chain() Reverse Loop ব্যবহার করে Chain Build করে, কিন্তু Execution Order ঠিক developer যে Order দিয়েছেন সেটাই বজায় রাখে।
+	
+	প্রতিটি Middleware তার পরের Handler-কে Wrap (ঘিরে) করে। তাই Chain তৈরি করার সময় শেষ Middleware থেকে প্রথম Middleware পর্যন্ত (last → first) তৈরি করা হয়। 
+	এর ফলে Chain()-এ যে Middleware-টি প্রথমে দেওয়া হয়, সেটিই সবচেয়ে বাইরের Wrapper হয় এবং Request আসলে সেটিই সবার আগে Execute হয়।
+
+	Order Should be:
+	Recovery
+	Request ID
+	Logging
+	Timeout
+	Rate Limiting
+	CORS
+	Authentication
+	Authorization
+	Validation
+	Business Handler
+	*/
+
 	handler := middleware.Chain(
 		mux,
+		middleware.RecoveryMiddleware, // সবচেয়ে বাইরের Wrapper হয় এবং Request আসলে সেটই সবার আগে Execute হয়।
+		middleware.RequestIdMiddleware,
 		middleware.LoggingMiddleware,
 		middleware.AuthMiddleware,
-		middleware.RecoveryMiddleware,
-		middleware.RequestIdMiddleware,
 	)
 
 	// Configure production-ready HTTP server
