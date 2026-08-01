@@ -5,7 +5,7 @@ import (
 )
 
 type UserRepository interface {
-	Create(user model.User) model.User
+	Create(user model.User) (model.User, error)
 	Update(id int, user model.User) (model.User, bool)
 	Delete(id int) bool
 	GetAll() ([]model.User, error)

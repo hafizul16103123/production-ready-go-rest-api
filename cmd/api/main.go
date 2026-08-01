@@ -1,5 +1,15 @@
 package main
 
+/*
+
+| Signal  | Meaning                             |
+| ------- | ----------------------------------- |
+| SIGINT  | Ctrl+C                              |
+| SIGTERM | Stop application gracefully         |
+| SIGKILL | Kill immediately (cannot be caught) |
+
+*/
+
 import (
 	"context"
 	"log/slog"
@@ -33,7 +43,6 @@ func main() {
 	slog.Warn("Warn")
 	slog.Error("Error")
 
-
 	repo := repository.NewMemoryRepository()
 	userService := service.NewUserService(repo)
 	userHandler := handler.NewUserHandler(userService)
@@ -42,24 +51,25 @@ func main() {
 
 	/*
 
-	আপনার Chain() Function-এর Golden Rule:
-	Chain()-এ Middleware যেই Order-এ লিখবেন, Request সেই একই Order-এ Execute হবে।
-	কারণ Chain() Reverse Loop ব্যবহার করে Chain Build করে, কিন্তু Execution Order ঠিক developer যে Order দিয়েছেন সেটাই বজায় রাখে।
-	
-	প্রতিটি Middleware তার পরের Handler-কে Wrap (ঘিরে) করে। তাই Chain তৈরি করার সময় শেষ Middleware থেকে প্রথম Middleware পর্যন্ত (last → first) তৈরি করা হয়। 
-	এর ফলে Chain()-এ যে Middleware-টি প্রথমে দেওয়া হয়, সেটিই সবচেয়ে বাইরের Wrapper হয় এবং Request আসলে সেটিই সবার আগে Execute হয়।
+		আপনার Chain() Function-এর Golden Rule:
+		Chain()-এ Middleware যেই Order-এ লিখবেন, Request সেই একই Order-এ Execute হবে।
+		কারণ Chain() Reverse Loop ব্যবহার করে Chain Build করে, কিন্তু Execution Order ঠিক developer যে Order দিয়েছেন সেটাই বজায় রাখে।
 
-	Order Should be:
-	Recovery
-	Request ID
-	Logging
-	Timeout
-	Rate Limiting
-	CORS
-	Authentication
-	Authorization
-	Validation
-	Business Handler
+		প্রতিটি Middleware তার পরের Handler-কে Wrap (ঘিরে) করে। তাই Chain তৈরি করার সময় শেষ Middleware থেকে প্রথম Middleware পর্যন্ত (last → first) তৈরি করা হয়।
+		এর ফলে Chain()-এ যে Middleware-টি প্রথমে দেওয়া হয়, সেটিই সবচেয়ে বাইরের Wrapper হয় এবং Request আসলে সেটিই সবার আগে Execute হয়।
+
+		Order Should be:
+		Recovery
+		Request ID
+		Logging
+		Timeout
+		Rate Limiting
+		CORS
+		Authentication
+		Authorization
+		Validation
+		Business Handler
+
 	*/
 
 	handler := middleware.Chain(
@@ -114,7 +124,7 @@ func main() {
 	// Gracefully shutdown the server
 	// Stops accepting new requests and waits for active ones.
 	if err := server.Shutdown(ctx); err != nil {
-		slog.Error("shutdown error", "error", err)
+		slog.Error("Shutdown failed", "error", err)
 		os.Exit(1)
 	}
 

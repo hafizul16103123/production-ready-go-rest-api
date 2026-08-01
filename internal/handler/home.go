@@ -51,5 +51,5 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		Name: "Hafiz",
 	}
 
-	response.WriteJSON(w, http.StatusOK, user)
+	response.Success(w, http.StatusOK, user)
 }

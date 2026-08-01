@@ -35,9 +35,12 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/dto"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
-	"github.com/hafizul16103123/production-ready-go-rest-api/internal/service"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/response"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/service"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/validator"
 )
 
 type UserHandler struct {
@@ -61,10 +64,10 @@ func (h *UserHandler) GetUsers(
 
 	users, err := h.service.GetAll()
 	if err != nil {
-		http.Error(w, "Failed to retrieve users", http.StatusInternalServerError)
+		response.Error(w, http.StatusInternalServerError, "Failed to retrieve users")
 		return
 	}
-	response.WriteJSON(w, http.StatusOK, users)
+	response.Success(w, http.StatusOK, users)
 }
 
 func (h *UserHandler) GetUser(
@@ -78,12 +81,12 @@ func (h *UserHandler) GetUser(
 
 	if !found {
 
-		http.Error(w, "User not found", http.StatusNotFound)
+		response.Error(w, http.StatusNotFound, "User not found")
 
 		return
 	}
 
-	response.WriteJSON(w, http.StatusOK, user)
+	response.Success(w, http.StatusOK, user)
 }
 
 func (h *UserHandler) CreateUser(
@@ -91,20 +94,32 @@ func (h *UserHandler) CreateUser(
 	r *http.Request,
 ) {
 
-	var user model.User
+	var input dto.CreateUserDTO
 
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		response.Error(w, http.StatusBadRequest, "Invalid JSON")
 
 		return
 	}
 
-	user = h.service.Create(user)
+	if err := validator.Validate.Struct(input); err != nil {
 
-	w.WriteHeader(http.StatusCreated)
+		response.ValidationError(
+			w,
+			err,
+		)
 
-	response.WriteJSON(w, http.StatusCreated, user)
+		return
+	}
+
+	user, err := h.service.Create(input.ToModel())
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "Failed to create user")
+		return
+	}
+
+	response.Success(w, http.StatusCreated, user)
 }
 
 func (h *UserHandler) UpdateUser(
@@ -118,7 +133,7 @@ func (h *UserHandler) UpdateUser(
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		response.Error(w, http.StatusBadRequest, "Invalid JSON")
 
 		return
 	}
@@ -127,12 +142,12 @@ func (h *UserHandler) UpdateUser(
 
 	if !ok {
 
-		http.Error(w, "User not found", http.StatusNotFound)
+		response.Error(w, http.StatusNotFound, "User not found")
 
 		return
 	}
 
-	response.WriteJSON(w, http.StatusOK, updated)
+	response.Success(w, http.StatusOK, updated)
 }
 
 func (h *UserHandler) DeleteUser(
@@ -146,10 +161,10 @@ func (h *UserHandler) DeleteUser(
 
 	if !ok {
 
-		http.Error(w, "User not found", http.StatusNotFound)
+		response.Error(w, http.StatusNotFound, "User not found")
 
 		return
 	}
 
-	response.WriteJSON(w, http.StatusNoContent, nil)
+	response.Success(w, http.StatusNoContent, nil)
 }

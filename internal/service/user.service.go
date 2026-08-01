@@ -25,7 +25,7 @@ func (s *UserService) GetByID(id int) (model.User, bool) {
 	return s.repo.GetUserById(id)
 }
 
-func (s *UserService) Create(user model.User) model.User {
+func (s *UserService) Create(user model.User) (model.User, error) {
 
 	return s.repo.Create(user)
 }

@@ -19,14 +19,15 @@ import (
 )
 
 func Init() {
+	config:= config.Get()
 
 	level := slog.LevelDebug
 
-	if config.Get().Env == "prod" {
+	if config.Env == "prod" {
 		level = slog.LevelWarn
 	}
 
-	slog.Info("Info", "env", config.Get().Env, "level", level)
+	slog.Info("Info", "env", config.Env, "level", level)
 	log := slog.New(
 		slog.NewJSONHandler(
 			os.Stdout,

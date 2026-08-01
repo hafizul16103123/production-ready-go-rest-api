@@ -46,13 +46,12 @@ func (m *MemoryRepository) GetUserById(Id int) (model.User, bool) {
 	return model.User{}, false
 }
 
-func (m *MemoryRepository) Create(user model.User) model.User {
-
+func (m *MemoryRepository) Create(user model.User) (model.User, error) {
 	user.Id = len(m.users) + 1
 
 	m.users = append(m.users, user)
 
-	return user
+	return user, nil
 }
 
 func (m *MemoryRepository) Update(Id int, user model.User) (model.User, bool) {
