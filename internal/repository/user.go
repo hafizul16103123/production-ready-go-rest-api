@@ -1,13 +1,18 @@
 package repository
 
 import (
+	"context"
+	"errors"
+
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
 )
 
+var ErrNotFound = errors.New("user not found")
+
 type UserRepository interface {
-	Create(user model.User) (model.User, error)
-	Update(id int, user model.User) (model.User, bool)
-	Delete(id int) bool
-	GetAll() ([]model.User, error)
-	GetUserById(id int) (model.User, bool)
+	Create(ctx context.Context, user model.User) (model.User, error)
+	Update(ctx context.Context, id int, user model.User) (model.User, error)
+	Delete(ctx context.Context, id int) error
+	GetAll(ctx context.Context) ([]model.User, error)
+	GetByID(ctx context.Context, id int) (model.User, error)
 }

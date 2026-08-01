@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -74,8 +75,9 @@ func ValidationError(
 ) {
 	errors := make(map[string]string)
 
-	for _, e := range err.(validator.ValidationErrors) {
 
+	for _, e := range err.(validator.ValidationErrors) {
+	fmt.Println("100:", e.Tag())
 		switch e.Tag() {
 
 		case "required":
@@ -84,11 +86,11 @@ func ValidationError(
 		case "email":
 			errors[e.Field()] = "Invalid email address"
 
-		case "min":
-			errors[e.Field()] = "Minimum length is " + e.Param()
+		case "gte":
+			errors[e.Field()] = "Minimum value is " + e.Param()
 
-		case "max":
-			errors[e.Field()] = "Maximum length is " + e.Param()
+		case "lte":
+			errors[e.Field()] = "Maximum value is " + e.Param()
 
 		default:
 			errors[e.Field()] = "Invalid value"

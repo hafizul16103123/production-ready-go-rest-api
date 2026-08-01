@@ -27,7 +27,6 @@ func Init() {
 		level = slog.LevelWarn
 	}
 
-	slog.Info("Info", "env", config.Env, "level", level)
 	log := slog.New(
 		slog.NewJSONHandler(
 			os.Stdout,

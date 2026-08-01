@@ -32,12 +32,15 @@ Slice-ও Go তে একটা reference type (ভেতরে pointer to unde
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/dto"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/repository"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/response"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/service"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/validator"
@@ -62,7 +65,7 @@ func (h *UserHandler) GetUsers(
 ) {
 	time.Sleep(2 * time.Millisecond) // Simulate a delay for demonstration purposes
 
-	users, err := h.service.GetAll()
+	users, err := h.service.GetAll(r.Context())
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, "Failed to retrieve users")
 		return
@@ -77,11 +80,18 @@ func (h *UserHandler) GetUser(
 
 	id, _ := strconv.Atoi(r.PathValue("id"))
 
-	user, found := h.service.GetByID(id)
+	user, err := h.service.GetByID(r.Context(), id)
 
-	if !found {
+	if errors.Is(err, repository.ErrNotFound) {
 
 		response.Error(w, http.StatusNotFound, "User not found")
+
+		return
+	}
+
+	if err != nil {
+
+		response.Error(w, http.StatusInternalServerError, "Failed to retrieve user")
 
 		return
 	}
@@ -93,7 +103,7 @@ func (h *UserHandler) CreateUser(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-
+	ctx := r.Context()
 	var input dto.CreateUserDTO
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -102,6 +112,8 @@ func (h *UserHandler) CreateUser(
 
 		return
 	}
+	fmt.Println(1)
+	fmt.Println("input:", input)
 
 	if err := validator.Validate.Struct(input); err != nil {
 
@@ -112,10 +124,10 @@ func (h *UserHandler) CreateUser(
 
 		return
 	}
-
-	user, err := h.service.Create(input.ToModel())
+	fmt.Println(2)
+	user, err := h.service.Create(ctx,input.ToModel())
 	if err != nil {
-		response.Error(w, http.StatusInternalServerError, "Failed to create user")
+		response.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -138,11 +150,18 @@ func (h *UserHandler) UpdateUser(
 		return
 	}
 
-	updated, ok := h.service.Update(id, user)
+	updated, err := h.service.Update(r.Context(), id, user)
 
-	if !ok {
+	if errors.Is(err, repository.ErrNotFound) {
 
 		response.Error(w, http.StatusNotFound, "User not found")
+
+		return
+	}
+
+	if err != nil {
+
+		response.Error(w, http.StatusInternalServerError, "Failed to update user")
 
 		return
 	}
@@ -157,11 +176,18 @@ func (h *UserHandler) DeleteUser(
 
 	id, _ := strconv.Atoi(r.PathValue("id"))
 
-	ok := h.service.Delete(id)
+	err := h.service.Delete(r.Context(), id)
 
-	if !ok {
+	if errors.Is(err, repository.ErrNotFound) {
 
 		response.Error(w, http.StatusNotFound, "User not found")
+
+		return
+	}
+
+	if err != nil {
+
+		response.Error(w, http.StatusInternalServerError, "Failed to delete user")
 
 		return
 	}

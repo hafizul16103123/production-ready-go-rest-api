@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/repository"
 )
@@ -16,26 +18,26 @@ func NewUserService(repo repository.UserRepository) *UserService {
 
 }
 
-func (s *UserService) GetAll() ([]model.User, error) {
-	return s.repo.GetAll()
+func (s *UserService) GetAll(ctx context.Context) ([]model.User, error) {
+	return s.repo.GetAll(ctx)
 }
 
-func (s *UserService) GetByID(id int) (model.User, bool) {
+func (s *UserService) GetByID(ctx context.Context, id int) (model.User, error) {
 
-	return s.repo.GetUserById(id)
+	return s.repo.GetByID(ctx, id)
 }
 
-func (s *UserService) Create(user model.User) (model.User, error) {
+func (s *UserService) Create(ctx context.Context, user model.User) (model.User, error) {
 
-	return s.repo.Create(user)
+	return s.repo.Create(ctx, user)
 }
 
-func (s *UserService) Update(id int, user model.User) (model.User, bool) {
+func (s *UserService) Update(ctx context.Context, id int, user model.User) (model.User, error) {
 
-	return s.repo.Update(id, user)
+	return s.repo.Update(ctx, id, user)
 }
 
-func (s *UserService) Delete(id int) bool {
+func (s *UserService) Delete(ctx context.Context, id int) error {
 
-	return s.repo.Delete(id)
+	return s.repo.Delete(ctx, id)
 }

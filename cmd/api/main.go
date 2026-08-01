@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/config"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/database"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/handler"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/logger"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/middleware"
@@ -35,15 +36,22 @@ func main() {
 		slog.Error("invalid config", "error", err)
 		os.Exit(1)
 	}
+	
 	//Logger
 	logger.Init()
 
-	slog.Debug("Debug")
-	slog.Info("Info")
-	slog.Warn("Warn")
-	slog.Error("Error")
+	// Database
+	db, err := database.NewPostgresDB(cfg)
+	if err != nil {
+		slog.Error("failed to connect database", "error", err)
+		os.Exit(1)
+	}
+	slog.Info("Database connected successfully")
+	defer db.Close()
 
-	repo := repository.NewMemoryRepository()
+
+	// repo := repository.NewMemoryRepository()
+	repo := repository.NewPostgresRepository(db)
 	userService := service.NewUserService(repo)
 	userHandler := handler.NewUserHandler(userService)
 

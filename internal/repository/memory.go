@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
 )
 
@@ -27,26 +29,26 @@ func NewMemoryRepository() *MemoryRepository {
 	}
 }
 
-func (m *MemoryRepository) GetAll() ([]model.User, error) {
+func (m *MemoryRepository) GetAll(ctx context.Context) ([]model.User, error) {
 	fmt.Println("GetAll called from MemoryRepository")
 	return m.users, nil
 }
 
-func (m *MemoryRepository) GetUserById(Id int) (model.User, bool) {
+func (m *MemoryRepository) GetByID(ctx context.Context, Id int) (model.User, error) {
 
 	for _, user := range m.users {
 
 		if user.Id == Id {
 
-			return user, true
+			return user, nil
 
 		}
 	}
 
-	return model.User{}, false
+	return model.User{}, ErrNotFound
 }
 
-func (m *MemoryRepository) Create(user model.User) (model.User, error) {
+func (m *MemoryRepository) Create(ctx context.Context,user model.User) (model.User, error) {
 	user.Id = len(m.users) + 1
 
 	m.users = append(m.users, user)
@@ -54,7 +56,7 @@ func (m *MemoryRepository) Create(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (m *MemoryRepository) Update(Id int, user model.User) (model.User, bool) {
+func (m *MemoryRepository) Update(ctx context.Context, Id int, user model.User) (model.User, error) {
 
 	for i := range m.users {
 
@@ -64,14 +66,14 @@ func (m *MemoryRepository) Update(Id int, user model.User) (model.User, bool) {
 
 			m.users[i] = user
 
-			return user, true
+			return user, nil
 		}
 	}
 
-	return model.User{}, false
+	return model.User{}, ErrNotFound
 }
 
-func (m *MemoryRepository) Delete(Id int) bool {
+func (m *MemoryRepository) Delete(ctx context.Context, Id int) error {
 
 	for i := range m.users {
 
@@ -82,9 +84,9 @@ func (m *MemoryRepository) Delete(Id int) bool {
 				m.users[i+1:]...,
 			)
 
-			return true
+			return nil
 		}
 	}
 
-	return false
+	return ErrNotFound
 }
