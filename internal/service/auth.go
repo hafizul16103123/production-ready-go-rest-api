@@ -4,11 +4,13 @@ import (
 	"context"
 
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/auth"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/config"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/dto"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/repository"
 )
 
-type AuthService struct{
+type AuthService struct {
 	repo repository.UserRepository
 }
 
@@ -24,13 +26,24 @@ func (authService *AuthService) Register(ctx context.Context, user model.User) (
 		return model.User{}, err
 	}
 	user.PasswordHash = string(hashedPassword)
-	return authService.repo.Create(ctx,user)
+	return authService.repo.Create(ctx, user)
 }
 
-func (authService *AuthService) Login(user model.User) (model.User, error) {
-	err := auth.CheckPasswordHash(user.PasswordHash, user.PasswordHash)
+func (authService *AuthService) Login(ctx context.Context, authDTO dto.LoginDTO) (model.User, string, error) {
+	user, err := authService.repo.GetByEmail(ctx, authDTO.Email)
 	if err != nil {
-		return model.User{}, err
+		return model.User{}, "", err
 	}
-	return authService.repo.GetByEmail(user.Email)
+	if err := auth.CheckPassword(authDTO.Password, user.PasswordHash); err != nil {
+		return model.User{}, "", err
+	}
+	token, err := auth.GenerateToken(
+		user.Id,
+		user.Email,
+		config.Get().JWTSecret,
+	)
+	if err != nil {
+		return model.User{}, "", err
+	}
+	return user, token, nil
 }

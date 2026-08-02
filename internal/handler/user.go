@@ -36,9 +36,10 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/auth"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/dto"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/middleware"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/repository"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/response"
@@ -61,11 +62,11 @@ func NewUserHandler(
 
 // Register routes for user-related endpoints
 func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /users", h.GetUsers)
-	mux.HandleFunc("GET /users/{id}", h.GetUser)
-	mux.HandleFunc("POST /users", h.CreateUser)
-	mux.HandleFunc("PUT /users/{id}", h.UpdateUser)
-	mux.HandleFunc("DELETE /users/{id}", h.DeleteUser)
+	mux.Handle("GET /users", middleware.Protect(h.GetUsers))
+	mux.Handle("GET /users/{id}", middleware.Protect(h.GetUser))
+	mux.Handle("POST /users", middleware.Protect(h.CreateUser))
+	mux.Handle("PUT /users/{id}", middleware.Protect(h.UpdateUser))
+	mux.Handle("DELETE /users/{id}", middleware.Protect(h.DeleteUser))
 }
 
 func (h *UserHandler) CreateUser(
@@ -141,7 +142,10 @@ func (h *UserHandler) GetUsers(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	time.Sleep(2 * time.Millisecond) // Simulate a delay for demonstration purposes
+	claims := r.Context().
+		Value(middleware.UserContextKey).
+		(*auth.Claims)
+	fmt.Println(claims.Email)
 
 	users, err := h.service.GetAll(r.Context())
 	if err != nil {

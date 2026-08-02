@@ -34,6 +34,7 @@ type Config struct {
 	Env  string `env:"ENV" env-default:"dev" validate:"required,oneof=dev test prod"`
 	Port string `env:"PORT" env-default:"8000" validate:"required"`
 	DatabaseURL string `env:"DATABASE_URL" env-default:"postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" validate:"required"`
+	JWTSecret string `env:"JWT_SECRET" env-default:"secret" validate:"required"`
 }
 
 const bootstrapFile = "dev.env"

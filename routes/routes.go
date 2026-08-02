@@ -2,8 +2,8 @@ package routes
 
 import (
 	"net/http"
-
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/handler"
+
 )
 
 func SetupRoutes(userHandler *handler.UserHandler, authHandler *handler.AuthHandler) *http.ServeMux {
@@ -17,3 +17,4 @@ func SetupRoutes(userHandler *handler.UserHandler, authHandler *handler.AuthHand
 
 	return mux
 }
+

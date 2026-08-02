@@ -210,3 +210,45 @@ func (r *PostgresRepository) GetAll(
 
 	return users, nil
 }
+// GET BY EMAIL
+
+func (r *PostgresRepository) GetByEmail(
+	ctx context.Context,
+	email string,
+) (model.User, error) {
+
+	query := `
+	SELECT
+		id,
+		name,
+		email,
+		age,
+		password_hash
+	FROM users
+	WHERE email = $1
+	`
+
+	var user model.User
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		email,
+	).Scan(
+		&user.Id,
+		&user.Name,
+		&user.Email,
+		&user.Age,
+		&user.PasswordHash,
+	)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.User{}, ErrNotFound
+	}
+
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
+}

@@ -22,6 +22,7 @@ func NewAuthHandler(service *service.AuthService) *AuthHandler {
 // Register handles user registration requests
 func (authHandler *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/register", authHandler.Register)
+	mux.HandleFunc("/login", authHandler.Login)
 
 }
 func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
@@ -44,4 +45,29 @@ func (authHandler *AuthHandler) Register(w http.ResponseWriter, r *http.Request)
 	}
 
 	response.Success(w, http.StatusCreated, user)
+}
+func (authHandler *AuthHandler)Login(w http.ResponseWriter, r *http.Request) {
+
+	var loginDTO dto.LoginDTO	
+
+	if err := json.NewDecoder(r.Body).Decode(&loginDTO); err != nil {
+		response.Error(w, http.StatusBadRequest, "Invalid JSON")
+		return
+	}
+
+	if err := validator.Validate.Struct(loginDTO); err != nil {
+		response.ValidationError(w, err)
+		return
+	}
+
+	user, token, err := authHandler.authService.Login(r.Context(),loginDTO)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, "Invalid credentials")
+		return
+	}
+
+	response.Success(w, http.StatusCreated, dto.LoginResponseDTO{
+		User:  dto.UserResponseFromModel(user),
+		Token: token,
+	})
 }

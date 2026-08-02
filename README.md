@@ -19,3 +19,6 @@ migrate -path migrations -database "..." down 1
 ❌ Forgetting the Down migration.
 ❌ Combining unrelated schema changes into one migration.
 ❌ Running SQL manually in production.
+
+# JWT
+go get github.com/golang-jwt/jwt/v5
