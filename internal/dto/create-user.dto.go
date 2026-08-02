@@ -14,6 +14,6 @@ func (d CreateUserDTO) ToModel() model.User {
 		Name:  d.Name,
 		Email: d.Email,
 		Age:   d.Age,
-		Password: d.Password,
+		PasswordHash: d.Password,
 	}
 }

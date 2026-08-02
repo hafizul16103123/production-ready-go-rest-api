@@ -1,2 +1,2 @@
 ALTER TABLE users
-DROP COLUMN phone;
+ADD COLUMN phone TEXT;

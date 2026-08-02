@@ -3,9 +3,9 @@
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 migrate create -ext sql -dir migrations -seq create_users
 ## Run migration cmd
-migrate -path migrations -database "postgres://postgres:postgresql@localhost:5432/postgres?sslmode=disable up
+migrate -path migrations -database "postgres://postgres:postgresql@localhost:5432/postgres?sslmode=disable" up
 
-migrate -path migrations -database "postgres://postgres:postgresql@localhost:5432/postgres?sslmode=disable up
+migrate -path migrations -database "postgres://postgres:postgresql@localhost:5432/postgres?sslmode=disable" down
 ## Roll Back Undo the last migration:
 migrate -path migrations -database "..." down 1
 

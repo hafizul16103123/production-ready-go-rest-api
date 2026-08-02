@@ -8,8 +8,8 @@ import (
 
 func SetupRoutes(userHandler *handler.UserHandler, authHandler *handler.AuthHandler) *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", handler.HomeHandler)
-	mux.HandleFunc("GET /health", handler.Health)
+	// mux.HandleFunc("GET /", handler.HomeHandler)
+	// mux.HandleFunc("GET /health", handler.Health)
 
 	//users
 	userHandler.RegisterRoutes(mux)

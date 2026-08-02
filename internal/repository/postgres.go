@@ -26,8 +26,8 @@ func (r *PostgresRepository) Create(
 ) (model.User, error) {
 
 	query := `
-	INSERT INTO users(name,email,age)
-	VALUES($1,$2,$3)
+	INSERT INTO users(name,email,age,password_hash)
+	VALUES($1,$2,$3,$4)
 	RETURNING id
 	`
 
@@ -37,6 +37,7 @@ func (r *PostgresRepository) Create(
 		user.Name,
 		user.Email,
 		user.Age,
+		user.PasswordHash,
 	).Scan(&user.Id)
 
 	if err != nil {
@@ -59,8 +60,9 @@ func (r *PostgresRepository) Update(
 	SET
 		name = $1,
 		email = $2,
-		age = $3
-	WHERE id = $4
+		age = $3,
+		password_hash = $4
+	WHERE id = $5
 	RETURNING id
 	`
 
@@ -70,6 +72,7 @@ func (r *PostgresRepository) Update(
 		user.Name,
 		user.Email,
 		user.Age,
+		user.PasswordHash,
 		id,
 	).Scan(&user.Id)
 

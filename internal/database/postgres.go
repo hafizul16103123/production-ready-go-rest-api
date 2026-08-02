@@ -48,7 +48,8 @@ func migrate(ctx context.Context, db *sql.DB) error {
 		id SERIAL PRIMARY KEY,
 		name TEXT NOT NULL,
 		email TEXT NOT NULL UNIQUE,
-		age INT NOT NULL
+		age INT NOT NULL,
+		password_hash TEXT NOT NULL
 	)
 	`
 
