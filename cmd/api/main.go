@@ -54,8 +54,9 @@ func main() {
 	userRepo := repository.NewPostgresRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
+	authHandler := handler.NewAuthHandler(userService)
 
-	mux := routes.SetupRoutes(userHandler)
+	mux := routes.SetupRoutes(userHandler, authHandler)
 
 	/*
 

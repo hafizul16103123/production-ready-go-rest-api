@@ -59,44 +59,13 @@ func NewUserHandler(
 	}
 }
 
-func (h *UserHandler) GetUsers(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
-	time.Sleep(2 * time.Millisecond) // Simulate a delay for demonstration purposes
-
-	users, err := h.service.GetAll(r.Context())
-	if err != nil {
-		response.Error(w, http.StatusInternalServerError, "Failed to retrieve users")
-		return
-	}
-	response.Success(w, http.StatusOK, users)
-}
-
-func (h *UserHandler) GetUser(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
-
-	id, _ := strconv.Atoi(r.PathValue("id"))
-
-	user, err := h.service.GetByID(r.Context(), id)
-
-	if errors.Is(err, repository.ErrNotFound) {
-
-		response.Error(w, http.StatusNotFound, "User not found")
-
-		return
-	}
-
-	if err != nil {
-
-		response.Error(w, http.StatusInternalServerError, "Failed to retrieve user")
-
-		return
-	}
-
-	response.Success(w, http.StatusOK, user)
+// Register routes for user-related endpoints
+func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /users", h.GetUsers)
+	mux.HandleFunc("GET /users/{id}", h.GetUser)
+	mux.HandleFunc("POST /users", h.CreateUser)
+	mux.HandleFunc("PUT /users/{id}", h.UpdateUser)
+	mux.HandleFunc("DELETE /users/{id}", h.DeleteUser)
 }
 
 func (h *UserHandler) CreateUser(
@@ -167,6 +136,45 @@ func (h *UserHandler) UpdateUser(
 	}
 
 	response.Success(w, http.StatusOK, updated)
+}
+func (h *UserHandler) GetUsers(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	time.Sleep(2 * time.Millisecond) // Simulate a delay for demonstration purposes
+
+	users, err := h.service.GetAll(r.Context())
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "Failed to retrieve users")
+		return
+	}
+	response.Success(w, http.StatusOK, users)
+}
+
+func (h *UserHandler) GetUser(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	id, _ := strconv.Atoi(r.PathValue("id"))
+
+	user, err := h.service.GetByID(r.Context(), id)
+
+	if errors.Is(err, repository.ErrNotFound) {
+
+		response.Error(w, http.StatusNotFound, "User not found")
+
+		return
+	}
+
+	if err != nil {
+
+		response.Error(w, http.StatusInternalServerError, "Failed to retrieve user")
+
+		return
+	}
+
+	response.Success(w, http.StatusOK, user)
 }
 
 func (h *UserHandler) DeleteUser(
