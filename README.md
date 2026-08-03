@@ -148,8 +148,7 @@ FROM products;
 SELECT MIN(price)
 FROM products;
 
-### 
-Template 13 — GROUP BY
+### Template 13 — GROUP BY
 SELECT
     column,
     aggregate(column2)
@@ -163,3 +162,177 @@ SELECT
     COUNT(*)
 FROM users
 GROUP BY country;
+
+
+### Template 14 — HAVING
+SELECT
+    column,
+    aggregate(column2)
+FROM table
+GROUP BY column
+HAVING aggregate(column2) > value;
+
+Example:
+
+SELECT
+    country,
+    COUNT(*)
+FROM users
+GROUP BY country
+HAVING COUNT(*) > 10;
+
+### Template 15 — INNER JOIN
+SELECT columns
+FROM table1
+INNER JOIN table2 ON table1.column = table2.column;
+
+Example
+
+SELECT
+    users.name,
+    orders.total
+FROM users
+INNER JOIN orders
+ON users.id = orders.user_id;
+
+### Template 16 — LEFT JOIN
+SELECT columns
+FROM table1
+LEFT JOIN table2
+ON table1.column = table2.column;
+
+Example
+
+SELECT
+    users.name,
+    orders.total
+FROM users
+LEFT JOIN orders
+ON users.id = orders.user_id;
+
+- Returns every user, even if they have no orders.
+
+### Template 17 — INSERT
+INSERT INTO table (
+    column1,
+    column2,
+    column3
+)
+VALUES (
+    value1,
+    value2,
+    value3
+);
+ ### Template 18 — INSERT Multiple
+INSERT INTO table (
+    column1,
+    column2
+)
+VALUES
+(value1,value2),
+(value3,value4),
+(value5,value6);
+### Template 19 — UPDATE
+UPDATE table
+SET
+    column1 = value1,
+    column2 = value2
+WHERE condition;
+
+Example
+
+UPDATE users
+SET
+    name='Hafiz',
+    age=25
+WHERE id=5;
+### Template 20 — DELETE
+DELETE
+FROM table
+WHERE condition;
+
+Example
+
+DELETE
+FROM users
+WHERE id=5;
+### Template 21 — UPSERT (PostgreSQL)
+INSERT INTO table (
+    columns...
+)
+VALUES (...)
+ON CONFLICT (unique_column)
+DO UPDATE
+SET
+    column = EXCLUDED.column;
+
+Example
+
+INSERT INTO users (
+    id,
+    name
+)
+VALUES (
+    1,
+    'Hafiz'
+)
+ON CONFLICT (id)
+DO UPDATE
+SET
+    name = EXCLUDED.name;
+
+### Template 22 — RETURNING
+INSERT INTO table (...)
+VALUES (...)
+RETURNING *;
+
+or
+
+UPDATE table
+SET ...
+WHERE ...
+RETURNING *;
+
+### Template 23 — CTE (WITH)
+WITH cte_name AS (
+    SELECT ...
+)
+SELECT *
+FROM cte_name;
+
+Example
+
+WITH active_users AS (
+    SELECT *
+    FROM users
+    WHERE active = true
+)
+SELECT *
+FROM active_users;
+
+### Template 24 — Subquery
+SELECT columns
+FROM table
+WHERE column IN (
+    SELECT column
+    FROM another_table
+);
+
+### Template 25 — EXISTS
+SELECT *
+FROM table1
+WHERE EXISTS (
+    SELECT 1
+    FROM table2
+    WHERE ...
+);
+
+### Template 26 — CASE
+SELECT
+    column,
+    CASE
+        WHEN condition THEN value
+        WHEN condition THEN value
+        ELSE value
+    END
+FROM table;
