@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/auth"
 	"github.com/hafizul16103123/production-ready-go-rest-api/internal/config"
@@ -31,6 +32,7 @@ func (authService *AuthService) Register(ctx context.Context, user model.User) (
 
 func (authService *AuthService) Login(ctx context.Context, authDTO dto.LoginDTO) (model.User, string, error) {
 	user, err := authService.repo.GetByEmail(ctx, authDTO.Email)
+	fmt.Println("user:", user)
 	if err != nil {
 		return model.User{}, "", err
 	}
@@ -40,6 +42,7 @@ func (authService *AuthService) Login(ctx context.Context, authDTO dto.LoginDTO)
 	token, err := auth.GenerateToken(
 		user.Id,
 		user.Email,
+		user.Role,
 		config.Get().JWTSecret,
 	)
 	if err != nil {

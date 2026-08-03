@@ -120,47 +120,6 @@ func (r *PostgresRepository) Delete(
 	return nil
 }
 
-// GET BY ID
-
-func (r *PostgresRepository) GetByID(
-	ctx context.Context,
-	id int,
-) (model.User, error) {
-
-	query := `
-	SELECT
-		id,
-		name,
-		email,
-		age
-	FROM users
-	WHERE id = $1
-	`
-
-	var user model.User
-
-	err := r.db.QueryRowContext(
-		ctx,
-		query,
-		id,
-	).Scan(
-		&user.Id,
-		&user.Name,
-		&user.Email,
-		&user.Age,
-	)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return model.User{}, ErrNotFound
-	}
-
-	if err != nil {
-		return model.User{}, err
-	}
-
-	return user, nil
-}
-
 // GET ALL
 
 func (r *PostgresRepository) GetAll(
@@ -172,7 +131,8 @@ func (r *PostgresRepository) GetAll(
 		id,
 		name,
 		email,
-		age
+		age,
+		role
 	FROM users
 	ORDER BY id
 	`
@@ -197,6 +157,7 @@ func (r *PostgresRepository) GetAll(
 			&user.Name,
 			&user.Email,
 			&user.Age,
+			&user.Role,
 		); err != nil {
 			return nil, err
 		}
@@ -209,6 +170,49 @@ func (r *PostgresRepository) GetAll(
 	}
 
 	return users, nil
+}
+
+// GET BY ID
+
+func (r *PostgresRepository) GetByID(
+	ctx context.Context,
+	id int,
+) (model.User, error) {
+
+	query := `
+	SELECT
+		id,
+		name,
+		email,
+		age,
+		role
+	FROM users
+	WHERE id = $1
+	`
+
+	var user model.User
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&user.Id,
+		&user.Name,
+		&user.Email,
+		&user.Age,
+		&user.Role,
+	)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.User{}, ErrNotFound
+	}
+
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
 }
 // GET BY EMAIL
 
@@ -223,6 +227,7 @@ func (r *PostgresRepository) GetByEmail(
 		name,
 		email,
 		age,
+		role,
 		password_hash
 	FROM users
 	WHERE email = $1
@@ -239,6 +244,7 @@ func (r *PostgresRepository) GetByEmail(
 		&user.Name,
 		&user.Email,
 		&user.Age,
+		&user.Role,
 		&user.PasswordHash,
 	)
 

@@ -65,9 +65,9 @@ func (authHandler *AuthHandler)Login(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, http.StatusUnauthorized, "Invalid credentials")
 		return
 	}
-
+	userResponse := dto.UserResponseFromModel(user)
 	response.Success(w, http.StatusCreated, dto.LoginResponseDTO{
-		User:  dto.UserResponseFromModel(user),
+		User:  userResponse,
 		Token: token,
 	})
 }

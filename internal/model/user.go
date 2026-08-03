@@ -6,4 +6,5 @@ type User struct {
 	Email        string `json:"email"`
 	Age          int    `json:"age"`
 	PasswordHash string `json:"passwordHash"`
+	Role		 string `json:"role" validate:" required oneof=admin user"`
 }

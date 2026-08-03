@@ -7,6 +7,7 @@ type UserResponseDTO struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	Age   int    `json:"age"`
+	Role  string `json:"role"`
 }
 
 func UserResponseFromModel(user model.User) UserResponseDTO {
@@ -15,7 +16,18 @@ func UserResponseFromModel(user model.User) UserResponseDTO {
 		Name:  user.Name,
 		Email: user.Email,
 		Age:   user.Age,
+		Role:  user.Role,
 	}
+}
+
+func UserResponsesFromModel(users []model.User) []UserResponseDTO {
+	responses := make([]UserResponseDTO, len(users))
+
+	for i, user := range users {
+		responses[i] = UserResponseFromModel(user)
+	}
+
+	return responses
 }
 
 type LoginResponseDTO struct {

@@ -14,8 +14,15 @@ import (
 type ContextKey string
 const UserContextKey ContextKey = "user"
 
-func Protect(fn http.HandlerFunc) http.Handler {
-	return JWT(config.Get().JWTSecret)(fn)
+func Protect(fn http.HandlerFunc, roles ...string) http.Handler {
+
+	var handler http.Handler = fn
+
+	for _, role := range roles {
+		handler = RequireRole(role)(handler)
+	}
+
+	return JWT(config.Get().JWTSecret)(handler)
 }
 
 func JWT(secret string) func(http.Handler) http.Handler {

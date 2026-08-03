@@ -1,6 +1,9 @@
 package dto
 
-import "github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
+import (
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/auth"
+	"github.com/hafizul16103123/production-ready-go-rest-api/internal/model"
+)
 
 type CreateUserDTO struct {
 	Name  string `json:"name" validate:"required"`
@@ -15,5 +18,7 @@ func (d CreateUserDTO) ToModel() model.User {
 		Email: d.Email,
 		Age:   d.Age,
 		PasswordHash: d.Password,
+		Role:  auth.RoleUser, // Set a default role or get it from the DTO if available
+	
 	}
 }

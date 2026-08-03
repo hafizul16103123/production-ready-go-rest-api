@@ -9,6 +9,7 @@ func GenerateToken(
 
 	userID int,
 	email string,
+	role string,
 	secret string,
 
 ) (string, error) {
@@ -17,6 +18,7 @@ func GenerateToken(
 
 		UserID: userID,
 		Email:  email,
+		Role:   role,
 
 		RegisteredClaims: jwt.RegisteredClaims{
 

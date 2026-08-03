@@ -62,11 +62,11 @@ func NewUserHandler(
 
 // Register routes for user-related endpoints
 func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.Handle("GET /users", middleware.Protect(h.GetUsers))
+	mux.Handle("GET /users", middleware.Protect(h.GetUsers,auth.RoleAdmin))
 	mux.Handle("GET /users/{id}", middleware.Protect(h.GetUser))
 	mux.Handle("POST /users", middleware.Protect(h.CreateUser))
 	mux.Handle("PUT /users/{id}", middleware.Protect(h.UpdateUser))
-	mux.Handle("DELETE /users/{id}", middleware.Protect(h.DeleteUser))
+	mux.Handle("DELETE /users/{id}", middleware.Protect(h.DeleteUser, auth.RoleAdmin))
 }
 
 func (h *UserHandler) CreateUser(
@@ -142,17 +142,18 @@ func (h *UserHandler) GetUsers(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	claims := r.Context().
-		Value(middleware.UserContextKey).
-		(*auth.Claims)
-	fmt.Println(claims.Email)
+	// claims := r.Context().
+	// 	Value(middleware.UserContextKey).
+	// 	(*auth.Claims)
+	
 
 	users, err := h.service.GetAll(r.Context())
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, "Failed to retrieve users")
 		return
 	}
-	response.Success(w, http.StatusOK, users)
+	userResponses := dto.UserResponsesFromModel(users)
+	response.Success(w, http.StatusOK, userResponses)
 }
 
 func (h *UserHandler) GetUser(
@@ -177,8 +178,8 @@ func (h *UserHandler) GetUser(
 
 		return
 	}
-
-	response.Success(w, http.StatusOK, user)
+	userResponse := dto.UserResponseFromModel(user)
+	response.Success(w, http.StatusOK, userResponse)
 }
 
 func (h *UserHandler) DeleteUser(
